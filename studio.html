@@ -1,1 +1,119 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shadow Model Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#09090d;color:white;font-family:Arial,sans-serif}
+header{padding:17px;background:#15151d;border-bottom:2px solid #ff1744}
+header h2{margin:0;color:#ff1744}
+header p{margin:6px 0 0;color:#bbb;font-size:13px}
+main{padding:16px;max-width:900px;margin:auto}
+h3{margin-top:20px}
+#stage{height:300px;background:#15151d;border:1px solid #383844;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#shape{width:110px;height:110px;background:#ff1744;border:3px solid #ff7a91;box-shadow:0 0 30px #ff174466;transform:rotateX(-20deg) rotateY(30deg);transition:background .2s}
+.cube{border-radius:5px}
+.sphere{border-radius:50%}
+.pyramid{clip-path:polygon(50% 0,0 100%,100% 100%);border:0!important}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+button,select,input{width:100%;padding:12px;border-radius:9px;border:1px solid #393946;background:#20202b;color:white;font-size:15px}
+button{background:#ff1744;border:0;font-weight:bold;cursor:pointer}
+button.secondary{background:#242431;border:1px solid #494958}
+label{display:block;color:#ccc;font-size:13px;margin:15px 0 7px}
+input[type=color]{height:48px;padding:5px}
+input[type=range]{padding:0;accent-color:#ff1744}
+.info{color:#aaa;font-size:13px;line-height:1.6}
+footer{text-align:center;color:#777;padding:25px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+<h2>◆ SHADOW MODEL STUDIO</h2>
+<p>Mobile 3D Shape Playground</p>
+</header>
+<main>
+<h3>My 3D Workspace</h3>
+<div id="stage"><div id="shape" class="cube"></div></div>
+
+<div class="controls">
+<button onclick="chooseShape('cube')">＋ Cube</button>
+<button onclick="chooseShape('sphere')">＋ Sphere</button>
+<button onclick="chooseShape('pyramid')">＋ Pyramid</button>
+<button class="secondary" onclick="rotateShape()">↻ Rotate</button>
+</div>
+
+<label for="colour">Object Colour</label>
+<input id="colour" type="color" value="#ff1744" oninput="setColour(this.value)">
+
+<label for="size">Object Size</label>
+<input id="size" type="range" min="50" max="180" value="110" oninput="setSize(this.value)">
+
+<div class="controls">
+<button class="secondary" onclick="resetStudio()">Reset</button>
+<button onclick="saveDesign()">Save Design</button>
+</div>
+
+<p id="status" class="info">Ready! Choose a shape to begin.</p>
+<p class="info">Note: This starter version uses CSS 3D-style shapes. A full 3D editor with real 3D models and export will be added later.</p>
+</main>
+<footer>SHADOW LABS · CREATE WITHOUT LIMITS</footer>
+
+<script>
+const shape=document.getElementById('shape');
+const statusText=document.getElementById('status');
+let angleX=-20,angleY=30;
+
+function chooseShape(type){
+  shape.className=type;
+  statusText.textContent='Selected: '+type;
+}
+function setColour(colour){
+  shape.style.background=colour;
+  shape.style.borderColor=colour;
+}
+function setSize(size){
+  shape.style.width=size+'px';
+  shape.style.height=size+'px';
+}
+function rotateShape(){
+  angleY+=45;
+  angleX+=10;
+  shape.style.transform=`rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+  statusText.textContent='Object rotated!';
+}
+function resetStudio(){
+  angleX=-20;angleY=30;
+  shape.className='cube';
+  shape.style.width='110px';
+  shape.style.height='110px';
+  shape.style.background='#ff1744';
+  shape.style.borderColor='#ff7a91';
+  shape.style.transform='rotateX(-20deg) rotateY(30deg)';
+  document.getElementById('colour').value='#ff1744';
+  document.getElementById('size').value=110;
+  statusText.textContent='Studio reset!';
+}
+function saveDesign(){
+  const design={
+    shape:shape.className,
+    colour:document.getElementById('colour').value,
+    size:document.getElementById('size').value,
+    rotationX:angleX,
+    rotationY:angleY
+  };
+  const blob=new Blob([JSON.stringify(design,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download='shadow-model.json';
+  link.click();
+  URL.revokeObjectURL(url);
+  statusText.textContent='Design file downloaded!';
+}
+</script>
+</body>
+</html>
+
